@@ -146,6 +146,7 @@ class WordSlideGame {
         
         // Reset found words for this level
         this.foundWords.clear();
+        this.clearSubmittedWords();
         
         // Initialize drag state
         this.initializeDragState();
@@ -217,6 +218,9 @@ class WordSlideGame {
             
             console.log(`Found valid ${this.currentWordLength}-letter word '${word.toUpperCase()}' (${this.foundWords.size}/${this.wordsNeededForProgression} words found)`);
             
+            // Add word to submitted words display
+            this.addSubmittedWord(word.toUpperCase());
+            
             // Remove used letters
             this.removeUsedLetters();
             
@@ -232,7 +236,7 @@ class WordSlideGame {
             // Re-render grid
             this.renderGrid();
             this.updateUI();
-            this.showResult(`Great! Found "${word.toUpperCase()}"`, 'success');
+            this.showResult(`Found "${word.toUpperCase()}"`, 'success');
         } else {
             // Invalid word - lose a life
             this.lives--;
@@ -425,6 +429,29 @@ class WordSlideGame {
     }
 
     /**
+     * Add a word to the submitted words display
+     */
+    addSubmittedWord(word) {
+        const wordsList = document.getElementById('words-list');
+        if (!wordsList) return;
+        
+        const wordBadge = document.createElement('div');
+        wordBadge.className = 'word-badge';
+        wordBadge.textContent = word;
+        wordsList.appendChild(wordBadge);
+    }
+
+    /**
+     * Clear submitted words display
+     */
+    clearSubmittedWords() {
+        const wordsList = document.getElementById('words-list');
+        if (wordsList) {
+            wordsList.innerHTML = '';
+        }
+    }
+
+    /**
      * Restart game
      */
     restartGame() {
@@ -434,6 +461,7 @@ class WordSlideGame {
         this.totalWordsFoundInSession = 0;
         this.foundWords.clear();
         this.showGameOver = false;
+        this.clearSubmittedWords();
         this.generateNewLevel();
         this.renderGrid();
         this.updateUI();
