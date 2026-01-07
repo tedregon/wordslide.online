@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WordSlide - Puzzle Complete!</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-container">
+            <img src="img/home-page-logo.png" alt="WordSlide Logo" class="logo">
+        </div>
+        <button class="btn-action btn-back" id="back-btn">
+            <span class="btn-label">Back</span>
+        </button>
+        <div class="completion-content">
+            <h1 class="completion-title">Congratulations!</h1>
+            <p class="completion-message">You completed today's puzzle</p>
+            
+            <div class="words-section">
+                <h2 class="words-title">Today's words were:</h2>
+                <div class="words-list" id="completion-words-list">
+                    <!-- Words will be populated here -->
+                </div>
+            </div>
+            
+            <div class="completion-actions">
+                <button class="btn-action btn-share" id="share-btn">
+                    <span class="btn-label">Share</span>
+                </button>
+                
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get words from localStorage
+        const foundWords = JSON.parse(localStorage.getItem('completedWords') || '[]');
+        const wordsList = document.getElementById('completion-words-list');
+        
+        if (foundWords.length > 0) {
+            foundWords.forEach(word => {
+                const wordBadge = document.createElement('div');
+                wordBadge.className = 'word-badge';
+                wordBadge.textContent = word;
+                wordsList.appendChild(wordBadge);
+            });
+        } else {
+            wordsList.innerHTML = '<p>No words found</p>';
+        }
+        
+        // Share button (placeholder for now)
+        document.getElementById('share-btn').addEventListener('click', () => {
+            // Share functionality to be implemented later
+            console.log('Share clicked');
+        });
+        
+        // Back button - navigate to game page
+        document.getElementById('back-btn').addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>
+

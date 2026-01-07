@@ -9,8 +9,8 @@ class WordSlideGame {
         this.lives = 3;
         this.coins = 0;
         this.currentLevelNumber = 1;
-        this.currentWordLength = 3;
-        this.wordsNeededForProgression = 3;
+        this.currentWordLength = 5;
+        this.wordsNeededForProgression = 5;
         this.foundWords = new Set();
         this.totalWordsFoundInSession = 0;
         this.highscore = this.loadHighscore();
@@ -66,6 +66,9 @@ class WordSlideGame {
             // For now, just restart
             this.restartGame();
         });
+        document.getElementById('completion-close-btn').addEventListener('click', () => {
+            this.hideCompletionModal();
+        });
     }
 
     /**
@@ -115,8 +118,8 @@ class WordSlideGame {
      * Generate a new level
      */
     generateNewLevel() {
-        // Generate level with exactly 5 words of 3 letters each
-        const wordLength = 3;
+        // Generate level with exactly 5 words of 5 letters each
+        const wordLength = 5;
         const wordCount = 5;
         
         // Get available words of the specified length
@@ -224,6 +227,17 @@ class WordSlideGame {
             // Remove used letters
             this.removeUsedLetters();
             
+            // Check if all words are found first
+            if (this.foundWords.size >= this.wordsNeededForProgression) {
+                // Store found words in localStorage
+                const wordsArray = Array.from(this.foundWords);
+                localStorage.setItem('completedWords', JSON.stringify(wordsArray));
+                
+                // Redirect to completion page
+                window.location.href = 'completion.html';
+                return;
+            }
+            
             // Check if grid is empty (level complete)
             if (this.isGridEmpty()) {
                 this.progressToNextLevel();
@@ -240,7 +254,7 @@ class WordSlideGame {
         } else {
             // Invalid word - lose a life
             this.lives--;
-            this.showResult('Not a valid word. -1', 'error');
+            this.showResult('Not a valid word. -1<img src="img/heart-fill.svg" alt="heart" style="height:1em;vertical-align:middle;">', 'error');
             
             if (!correctLength) {
                 console.log(`Wrong length word '${word}' (needs ${this.currentWordLength} letters)`);
@@ -483,6 +497,20 @@ class WordSlideGame {
         const message = `No more lives.\nScore: ${this.totalWordsFoundInSession}, Highscore: ${this.highscore}`;
         document.getElementById('game-over-message').textContent = message;
         document.getElementById('game-over-modal').classList.add('show');
+    }
+
+    /**
+     * Show completion modal
+     */
+    showCompletionModal() {
+        document.getElementById('completion-modal').classList.add('show');
+    }
+
+    /**
+     * Hide completion modal
+     */
+    hideCompletionModal() {
+        document.getElementById('completion-modal').classList.remove('show');
     }
 
     /**
@@ -899,7 +927,7 @@ setupRowDragHandlers(rowContainer, rowElement, rowIndex) {
     showResult(message, type = 'info') {
         this.result = message;
         const banner = document.getElementById('result-banner');
-        banner.textContent = message;
+        banner.innerHTML = message;
         banner.className = `result-banner ${type} show`;
         
         setTimeout(() => {

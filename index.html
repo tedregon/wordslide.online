@@ -5,17 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WordSlide - Word Puzzle Game</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2"></script>
 </head>
 <body>
     <div class="container">
         <div class="logo-container">
-            <img src="home-page-logo.png" alt="WordSlide Logo" class="logo">
+            <img src="img/home-page-logo.png" alt="WordSlide Logo" class="logo">
         </div>
         <header class="game-header">
             <button class="btn-reset" id="reset-btn">Reset</button>
             <div class="hearts-display" id="hearts-display">
-                <span class="heart">❤️</span>
                 <span id="lives">3</span>
+                <span class="heart"><img src="img/heart-fill.svg" alt="heart" width="22" height="22" style="vertical-align:middle;" ></span>
             </div>
         </header>
 
@@ -34,7 +35,7 @@
                 </div>
 
                 <div class="submitted-words" id="submitted-words">
-                    <h3>Found Words</h3>
+                    <h3>Words found</h3>
                     <div class="words-list" id="words-list"></div>
                 </div>
             </div>
@@ -47,6 +48,16 @@
                 <div class="modal-buttons">
                     <button class="btn-modal" id="restart-btn">Restart</button>
                     <button class="btn-modal" id="back-to-menu-btn">Back to Menu</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="completion-modal" id="completion-modal">
+            <div class="modal-content">
+                <h2>Congratulations!</h2>
+                <p>You completed today's puzzle</p>
+                <div class="modal-buttons">
+                    <button class="btn-modal" id="completion-close-btn">Close</button>
                 </div>
             </div>
         </div>

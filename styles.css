@@ -46,9 +46,8 @@ body {
 }
 
 .logo {
-    max-width: 100%;
-    height: 60px;
-    width: auto;
+    width: 410px;
+    height: 42px;
 }
 
 /* Header */
@@ -103,9 +102,6 @@ body {
     font-size: 20px;
 }
 
-.heart {
-    font-size: 20px;
-}
 
 /* Main Game Area */
 .game-main {
@@ -157,7 +153,7 @@ body {
     background: var(--card-bg);
     color: var(--text-color);
     border-radius: 4px;
-    font-size: 18px;
+    font-size: 22px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
@@ -435,6 +431,28 @@ body {
     background: #3D3D5F;
 }
 
+/* Completion Modal */
+.completion-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s;
+}
+
+.completion-modal.show {
+    opacity: 1;
+    pointer-events: all;
+}
+
 /* Responsive Design */
 @media (max-width: 600px) {
     .game-main {
@@ -462,6 +480,75 @@ body {
     .coins-display, .hearts-display {
         font-size: 16px;
     }
+}
+
+/* Completion Page Styles */
+.completion-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+    min-height: calc(100vh - 200px);
+}
+
+.completion-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 12px;
+}
+
+.completion-message {
+    font-size: 18px;
+    color: var(--text-color);
+    margin-bottom: 40px;
+    opacity: 0.9;
+}
+
+.words-section {
+    width: 100%;
+    max-width: 400px;
+    margin-bottom: 40px;
+}
+
+.words-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 20px;
+}
+
+.completion-content .words-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    align-items: center;
+}
+
+.completion-content .word-badge {
+    padding: 8px 16px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 16px;
+    color: white;
+}
+
+.completion-actions {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.btn-share,
+.btn-back {
+    width: 100%;
+    padding: 14px;
 }
 
 /* Touch device optimizations */
