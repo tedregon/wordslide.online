@@ -14,6 +14,7 @@ class WordSlideGame {
         this.foundWords = new Set();
         this.totalWordsFoundInSession = 0;
         this.highscore = this.loadHighscore();
+        this.resetCount = 0;
         
         // Grid state
         this.letters = []; // [[String]] - rows of letters
@@ -44,6 +45,19 @@ class WordSlideGame {
     }
 
     async init() {
+        // Register service worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((registration) => {
+                        console.log('ServiceWorker registration successful:', registration.scope);
+                    })
+                    .catch((error) => {
+                        console.log('ServiceWorker registration failed:', error);
+                    });
+            });
+        }
+        
         // Load dictionary first
         await dictionary.load();
         
@@ -60,14 +74,11 @@ class WordSlideGame {
 
     setupEventListeners() {
         document.getElementById('confirm-btn').addEventListener('click', () => this.confirmWord());
-        document.getElementById('reset-btn').addEventListener('click', () => this.restartGame());
+        document.getElementById('reset-btn').addEventListener('click', () => this.resetLevel());
         document.getElementById('restart-btn').addEventListener('click', () => this.restartGame());
         document.getElementById('back-to-menu-btn').addEventListener('click', () => {
             // For now, just restart
             this.restartGame();
-        });
-        document.getElementById('completion-close-btn').addEventListener('click', () => {
-            this.hideCompletionModal();
         });
     }
 
@@ -149,7 +160,6 @@ class WordSlideGame {
         
         // Reset found words for this level
         this.foundWords.clear();
-        this.clearSubmittedWords();
         
         // Initialize drag state
         this.initializeDragState();
@@ -221,9 +231,6 @@ class WordSlideGame {
             
             console.log(`Found valid ${this.currentWordLength}-letter word '${word.toUpperCase()}' (${this.foundWords.size}/${this.wordsNeededForProgression} words found)`);
             
-            // Add word to submitted words display
-            this.addSubmittedWord(word.toUpperCase());
-            
             // Remove used letters
             this.removeUsedLetters();
             
@@ -232,6 +239,9 @@ class WordSlideGame {
                 // Store found words in localStorage
                 const wordsArray = Array.from(this.foundWords);
                 localStorage.setItem('completedWords', JSON.stringify(wordsArray));
+                
+                // Store reset count in localStorage
+                localStorage.setItem('completedResetCount', this.resetCount.toString());
                 
                 // Redirect to completion page
                 window.location.href = 'completion.html';
@@ -250,20 +260,15 @@ class WordSlideGame {
             // Re-render grid
             this.renderGrid();
             this.updateUI();
-            this.showResult(`Found "${word.toUpperCase()}"`, 'success');
+            this.showResult(`Found word "${word.toUpperCase()}"`, 'success');
         } else {
-            // Invalid word - lose a life
-            this.lives--;
-            this.showResult('Not a valid word. -1<img src="img/heart-fill.svg" alt="heart" style="height:1em;vertical-align:middle;">', 'error');
+            // Invalid word - just show error message
+            this.showResult('Not a valid word.', 'error');
             
             if (!correctLength) {
                 console.log(`Wrong length word '${word}' (needs ${this.currentWordLength} letters)`);
             } else {
                 console.log(`Invalid word '${word}'`);
-            }
-            
-            if (this.lives <= 0) {
-                this.handleGameOver();
             }
             
             this.updateUI();
@@ -442,40 +447,58 @@ class WordSlideGame {
         this.showResult('Received an extra heart', 'success');
     }
 
+
     /**
-     * Add a word to the submitted words display
+     * Reset current level using the same words
      */
-    addSubmittedWord(word) {
-        const wordsList = document.getElementById('words-list');
-        if (!wordsList) return;
+    resetLevel() {
+        // Increment reset counter
+        this.resetCount++;
         
-        const wordBadge = document.createElement('div');
-        wordBadge.className = 'word-badge';
-        wordBadge.textContent = word;
-        wordsList.appendChild(wordBadge);
-    }
-
-    /**
-     * Clear submitted words display
-     */
-    clearSubmittedWords() {
-        const wordsList = document.getElementById('words-list');
-        if (wordsList) {
-            wordsList.innerHTML = '';
+        // Check if we have current level words, if not generate a new level
+        if (!this.currentLevelWords || this.currentLevelWords.length === 0) {
+            this.generateNewLevel();
+        } else {
+            // Use the same words to regenerate the level
+            console.log(`Resetting level ${this.currentLevelNumber} with same words: ${this.currentLevelWords.join(', ')}`);
+            
+            // Generate letter grid from the same words
+            this.letters = this.generateLettersGrid(this.currentLevelWords);
+            
+            // Initialize selection to center of each row
+            this.initializeSelection();
+            
+            // Reset found words for this level
+            this.foundWords.clear();
+            
+            // Initialize drag state
+            this.initializeDragState();
         }
+        
+        // Clear any result messages
+        const banner = document.getElementById('result-banner');
+        banner.classList.remove('show');
+        banner.innerHTML = '';
+        this.result = '';
+        this.showGameOver = false;
+        
+        // Re-render the grid
+        this.renderGrid();
+        this.updateUI();
+        document.getElementById('game-over-modal').classList.remove('show');
     }
 
     /**
-     * Restart game
+     * Restart game (full reset)
      */
     restartGame() {
         this.lives = 3;
         this.coins = 0;
         this.currentLevelNumber = 1;
         this.totalWordsFoundInSession = 0;
+        this.resetCount = 0;
         this.foundWords.clear();
         this.showGameOver = false;
-        this.clearSubmittedWords();
         this.generateNewLevel();
         this.renderGrid();
         this.updateUI();
@@ -494,24 +517,11 @@ class WordSlideGame {
             this.saveHighscore();
         }
         
-        const message = `No more lives.\nScore: ${this.totalWordsFoundInSession}, Highscore: ${this.highscore}`;
+        const message = `Game Over!\nScore: ${this.totalWordsFoundInSession}, Highscore: ${this.highscore}`;
         document.getElementById('game-over-message').textContent = message;
         document.getElementById('game-over-modal').classList.add('show');
     }
 
-    /**
-     * Show completion modal
-     */
-    showCompletionModal() {
-        document.getElementById('completion-modal').classList.add('show');
-    }
-
-    /**
-     * Hide completion modal
-     */
-    hideCompletionModal() {
-        document.getElementById('completion-modal').classList.remove('show');
-    }
 
     /**
      * Render the letter grid
@@ -918,7 +928,11 @@ setupRowDragHandlers(rowContainer, rowElement, rowIndex) {
      * Update UI elements
      */
     updateUI() {
-        document.getElementById('lives').textContent = this.lives;
+        // Update reset counter
+        const resetDisplay = document.getElementById('reset-count');
+        if (resetDisplay) {
+            resetDisplay.textContent = this.resetCount;
+        }
     }
 
     /**

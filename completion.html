@@ -3,28 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WordSlide - Puzzle Complete!</title>
+    <meta name="description" content="WordSlide - Word Puzzle Game">
+    <meta name="theme-color" content="#F5C139">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="WordSlide">
+    <title>WordSlide - The Word Sliding Crossword</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="img/wordslide-logo.png">
+    <link rel="apple-touch-icon" href="img/wordslide-logo.png">
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2"></script>
 </head>
 <body>
     <div class="container">
         <div class="logo-container">
-            <img src="img/home-page-logo.png" alt="WordSlide Logo" class="logo">
+            <a href="index.html" class="logo-link">
+                <img src="img/home-page-logo.png" alt="WordSlide Logo" class="logo">
+            </a>
         </div>
-        <button class="btn-action btn-back" id="back-btn">
-            <span class="btn-label">Back</span>
-        </button>
+        
         <div class="completion-content">
-            <h1 class="completion-title">Congratulations!</h1>
-            <p class="completion-message">You completed today's puzzle</p>
-            
-            <div class="words-section">
-                <h2 class="words-title">Today's words were:</h2>
-                <div class="words-list" id="completion-words-list">
-                    <!-- Words will be populated here -->
-                </div>
-            </div>
+            <h1 class="completion-title">
+                Congratulations!
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="var(--active-color)" viewBox="0 0 256 256" class="confetti-icon"><path d="M111.49,52.63a15.8,15.8,0,0,0-26,5.77L33,202.78A15.83,15.83,0,0,0,47.76,224a16,16,0,0,0,5.46-1l144.37-52.5a15.8,15.8,0,0,0,5.78-26ZM65.14,161.13l19.2-52.79,63.32,63.32-52.8,19.2ZM160,72a37.8,37.8,0,0,1,3.84-15.58C169.14,45.83,179.14,40,192,40c6.7,0,11-2.29,13.65-7.21A22,22,0,0,0,208,23.94,8,8,0,0,1,224,24c0,12.86-8.52,32-32,32-6.7,0-11,2.29-13.65,7.21A22,22,0,0,0,176,72.06,8,8,0,0,1,160,72ZM136,40V16a8,8,0,0,1,16,0V40a8,8,0,0,1-16,0Zm101.66,82.34a8,8,0,1,1-11.32,11.31l-16-16a8,8,0,0,1,11.32-11.32Zm4.87-42.75-24,8a8,8,0,0,1-5.06-15.18l24-8a8,8,0,0,1,5.06,15.18Z"></path></svg>
+            </h1>
+            <p class="completion-message">You completed today's puzzle<span id="tries-message"></span></p>
             
             <div class="completion-actions">
                 <button class="btn-action btn-share" id="share-btn">
@@ -35,31 +39,25 @@
         </div>
     </div>
 
+    <footer class="page-footer">
+        Created by <a href="https://chipdoes.app" target="_blank" rel="noopener noreferrer">@Chip Rian</a>
+    </footer>
+
     <script>
-        // Get words from localStorage
-        const foundWords = JSON.parse(localStorage.getItem('completedWords') || '[]');
-        const wordsList = document.getElementById('completion-words-list');
-        
-        if (foundWords.length > 0) {
-            foundWords.forEach(word => {
-                const wordBadge = document.createElement('div');
-                wordBadge.className = 'word-badge';
-                wordBadge.textContent = word;
-                wordsList.appendChild(wordBadge);
-            });
-        } else {
-            wordsList.innerHTML = '<p>No words found</p>';
+        // Get and display reset count (tries)
+        const resetCount = localStorage.getItem('completedResetCount');
+        const triesMessage = document.getElementById('tries-message');
+        if (resetCount !== null) {
+            const tries = parseInt(resetCount, 10);
+            if (tries > 0) {
+                triesMessage.textContent = ` in ${tries} ${tries === 1 ? 'try' : 'tries'}`;
+            }
         }
         
         // Share button (placeholder for now)
         document.getElementById('share-btn').addEventListener('click', () => {
             // Share functionality to be implemented later
             console.log('Share clicked');
-        });
-        
-        // Back button - navigate to game page
-        document.getElementById('back-btn').addEventListener('click', () => {
-            window.location.href = 'index.html';
         });
     </script>
 </body>
