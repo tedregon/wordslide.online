@@ -60,7 +60,6 @@ class WordSlideGame {
 
     setupEventListeners() {
         document.getElementById('confirm-btn').addEventListener('click', () => this.confirmWord());
-        document.getElementById('progress-btn').addEventListener('click', () => this.progressToNextLevel());
         document.getElementById('reset-btn').addEventListener('click', () => this.restartGame());
         document.getElementById('restart-btn').addEventListener('click', () => this.restartGame());
         document.getElementById('back-to-menu-btn').addEventListener('click', () => {
@@ -451,132 +450,233 @@ class WordSlideGame {
             button.textContent = letter;
             button.dataset.row = rowIndex;
             button.dataset.col = col;
+            // Remove color animation: only allow transform to transition
+            button.style.transitionProperty = 'transform';
+            button.style.transitionDuration = '300ms';
+            button.style.transitionTimingFunction = 'ease-out';
             
             row.appendChild(button);
         }
         
         rowContainer.appendChild(row);
         
-        // Initialize drag offset to 0
-        this.dragOffset[rowIndex] = 0;
-        this.baseOffset[rowIndex] = 0;
-        
-        // Setup drag handlers - will be implemented step by step
+        // Setup drag handlers
         this.setupRowDragHandlers(rowContainer, row, rowIndex);
-        
+
+        // After the row is in the DOM, center the initially selected letter
+        requestAnimationFrame(() => {
+        const selected = this.selectedColumnIndices[rowIndex] || 0;
+        const targetOffset = this.calculateOffsetForIndex(rowIndex, selected, rowContainer, row);
+        this.dragOffset[rowIndex] = targetOffset;
+        this.baseOffset[rowIndex] = targetOffset;
+        row.style.transform = `translateX(${targetOffset}px)`;
+        this.updateRowSelection(rowIndex);
+        });
+
         return rowContainer;
     }
 
     /**
      * Setup drag handlers for a row - STARTING FRESH
      */
-    setupRowDragHandlers(rowContainer, rowElement, rowIndex) {
-        let isDragging = false;
-        let startX = 0;
-        let startOffset = 0;
-        
-        // Calculate bounds: rightmost = first letter centered, leftmost = last letter centered
-        const getBounds = () => {
-            const containerWidth = rowContainer.offsetWidth;
-            const rowData = this.letters[rowIndex];
-            if (rowData.length === 0) return { min: 0, max: 0 };
-            
-            const screenCenter = containerWidth / 2;
-            
-            // Get actual button positions by measuring them
-            const buttons = rowElement.querySelectorAll('.letter-button');
-            if (buttons.length === 0) return { min: 0, max: 0 };
-            
-            // Get first and last button positions
-            const firstButton = buttons[0];
-            const lastButton = buttons[buttons.length - 1];
-            
-            const containerRect = rowContainer.getBoundingClientRect();
-            const firstButtonRect = firstButton.getBoundingClientRect();
-            const lastButtonRect = lastButton.getBoundingClientRect();
-            
-            // Calculate button centers relative to container
-            const firstButtonCenter = (firstButtonRect.left - containerRect.left) + (firstButtonRect.width / 2);
-            const lastButtonCenter = (lastButtonRect.left - containerRect.left) + (lastButtonRect.width / 2);
-            
-            // Calculate offsets needed to center each letter
-            // Rightmost: first letter centered (positive offset moves row left, showing first letter)
-            const maxOffset = screenCenter - firstButtonCenter;
-            // Leftmost: last letter centered (negative offset moves row right, showing last letter)
-            const minOffset = screenCenter - lastButtonCenter;
-            
-            return { min: minOffset, max: maxOffset };
+    /**
+ * Setup drag handlers for a row
+ * Continuous snapping while dragging (step-by-step, center-sticky)
+ */
+setupRowDragHandlers(rowContainer, rowElement, rowIndex) {
+    let isDragging = false;
+    let startX = 0;
+    let startOffset = 0;
+  
+    // Measurements
+    let baseCenters = null; // center-x of each button when translateX == 0, relative to container
+    let stepPx = null;      // distance between adjacent centers
+  
+    const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
+  
+    const computeMetrics = () => {
+      const buttons = Array.from(rowElement.querySelectorAll('.letter-button'));
+      if (buttons.length === 0) {
+        baseCenters = [];
+        stepPx = 0;
+        return;
+      }
+  
+      const containerRect = rowContainer.getBoundingClientRect();
+      const currentOffset = this.dragOffset[rowIndex] || 0;
+  
+      const centers = buttons.map(btn => {
+        const r = btn.getBoundingClientRect();
+        const center = (r.left - containerRect.left) + (r.width / 2);
+        return {
+          col: parseInt(btn.dataset.col, 10),
+          baseCenter: center - currentOffset // normalize to "no transform"
         };
-        
-        const handleStart = (clientX) => {
-            isDragging = true;
-            this.isDragging[rowIndex] = true;
-            startX = clientX;
-            startOffset = this.dragOffset[rowIndex] || 0;
-            rowContainer.style.cursor = 'grabbing';
-            rowElement.style.transition = 'none';
-        };
-        
-        const handleMove = (clientX) => {
-            if (!isDragging || !this.isDragging[rowIndex]) return;
-            
-            const deltaX = clientX - startX;
-            const newOffset = startOffset + deltaX;
-            
-            // Clamp to bounds
-            const bounds = getBounds();
-            const clampedOffset = Math.max(bounds.min, Math.min(bounds.max, newOffset));
-            
-            // Apply the offset
-            this.dragOffset[rowIndex] = clampedOffset;
-            rowElement.style.transform = `translateX(${clampedOffset}px)`;
-        };
-        
-        const handleEnd = () => {
-            if (isDragging) {
-                isDragging = false;
-                this.isDragging[rowIndex] = false;
-                rowContainer.style.cursor = 'grab';
-            }
-        };
-        
-        // Mouse events
-        const mouseMoveHandler = (e) => {
-            handleMove(e.clientX);
-        };
-        
-        const mouseUpHandler = () => {
-            handleEnd();
-            document.removeEventListener('mousemove', mouseMoveHandler);
-            document.removeEventListener('mouseup', mouseUpHandler);
-        };
-        
-        rowContainer.addEventListener('mousedown', (e) => {
-            handleStart(e.clientX);
-            document.addEventListener('mousemove', mouseMoveHandler);
-            document.addEventListener('mouseup', mouseUpHandler);
-            e.preventDefault();
-        });
-        
-        // Touch events
-        const touchMoveHandler = (e) => {
-            handleMove(e.touches[0].clientX);
-            e.preventDefault();
-        };
-        
-        const touchEndHandler = () => {
-            handleEnd();
-            document.removeEventListener('touchmove', touchMoveHandler);
-            document.removeEventListener('touchend', touchEndHandler);
-        };
-        
-        rowContainer.addEventListener('touchstart', (e) => {
-            handleStart(e.touches[0].clientX);
-            document.addEventListener('touchmove', touchMoveHandler);
-            document.addEventListener('touchend', touchEndHandler);
-            e.preventDefault();
-        });
-    }
+      });
+  
+      centers.sort((a, b) => a.col - b.col);
+      baseCenters = centers.map(x => x.baseCenter);
+  
+      if (baseCenters.length >= 2) {
+        stepPx = baseCenters[1] - baseCenters[0];
+      } else {
+        stepPx = this.BUTTON_WIDTH + this.BUTTON_SPACING; // fallback
+      }
+    };
+  
+    const getBounds = () => {
+      if (!baseCenters || baseCenters.length === 0) return { min: 0, max: 0 };
+  
+      const screenCenter = rowContainer.offsetWidth / 2;
+      const firstCenter = baseCenters[0];
+      const lastCenter = baseCenters[baseCenters.length - 1];
+  
+      return {
+        max: screenCenter - firstCenter, // center first
+        min: screenCenter - lastCenter   // center last
+      };
+    };
+  
+    const offsetToIndex = (offset) => {
+      if (!baseCenters || baseCenters.length === 0) return 0;
+  
+      const screenCenter = rowContainer.offsetWidth / 2;
+      const firstCenter = baseCenters[0];
+  
+      const raw = (screenCenter - (firstCenter + offset)) / stepPx;
+      return clamp(Math.round(raw), 0, baseCenters.length - 1);
+    };
+  
+    const indexToOffset = (idx) => {
+      if (!baseCenters || baseCenters.length === 0) return 0;
+      const screenCenter = rowContainer.offsetWidth / 2;
+      return screenCenter - baseCenters[idx];
+    };
+  
+    const applyOffset = (offset) => {
+      this.dragOffset[rowIndex] = offset;
+      this.baseOffset[rowIndex] = offset;
+      rowElement.style.transform = `translateX(${offset}px)`;
+    };
+
+    const applySelection = (snappedIndex) => {
+      const prevIndex = this.selectedColumnIndices[rowIndex] || 0;
+      if (snappedIndex !== prevIndex) {
+        this.selectedColumnIndices[rowIndex] = snappedIndex;
+        this.updateRowSelection(rowIndex);
+      }
+    };
+  
+    const handleStart = (clientX) => {
+      isDragging = true;
+      this.isDragging[rowIndex] = true;
+      startX = clientX;
+      startOffset = this.dragOffset[rowIndex] || 0;
+  
+      rowContainer.style.cursor = 'grabbing';
+      rowElement.style.transition = 'none';
+  
+      computeMetrics();
+    };
+  
+    // RAF throttle to keep movement smooth
+    let pendingMove = null;
+    let rafId = null;
+
+    const processMove = (clientX) => {
+      if (!isDragging || !this.isDragging[rowIndex]) return;
+
+      if (!baseCenters || baseCenters.length === 0 || !stepPx) computeMetrics();
+
+      const deltaX = clientX - startX;
+      const proposedOffset = startOffset + deltaX;
+
+      const bounds = getBounds();
+      const clampedOffset = clamp(proposedOffset, bounds.min, bounds.max);
+
+      // SMOOTH DRAG: follow the finger exactly (shows direction),
+      // but update the selected index based on which letter is closest to center.
+      applyOffset(clampedOffset);
+
+      const idx = offsetToIndex(clampedOffset);
+      applySelection(idx);
+    };
+
+    const handleMove = (clientX) => {
+      pendingMove = clientX;
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        if (pendingMove !== null) {
+          processMove(pendingMove);
+          pendingMove = null;
+        }
+      });
+    };
+  
+    const handleEnd = () => {
+      if (!isDragging) return;
+      isDragging = false;
+      this.isDragging[rowIndex] = false;
+      rowContainer.style.cursor = 'grab';
+
+      // SNAP ON RELEASE: animate to the nearest centered letter
+      computeMetrics();
+      const idx = clamp(this.selectedColumnIndices[rowIndex] || 0, 0, (baseCenters?.length || 1) - 1);
+      const snappedOffset = indexToOffset(idx);
+
+      rowElement.style.transition = 'transform 120ms ease-out';
+      applyOffset(snappedOffset);
+
+      // Clear transition after it settles
+      setTimeout(() => {
+        rowElement.style.transition = 'none';
+      }, 140);
+    };
+  
+    // Mouse events
+    const mouseMoveHandler = (e) => handleMove(e.clientX);
+    const mouseUpHandler = () => {
+      handleEnd();
+      document.removeEventListener('mousemove', mouseMoveHandler);
+      document.removeEventListener('mouseup', mouseUpHandler);
+    };
+  
+    rowContainer.addEventListener('mousedown', (e) => {
+      handleStart(e.clientX);
+      document.addEventListener('mousemove', mouseMoveHandler);
+      document.addEventListener('mouseup', mouseUpHandler);
+      e.preventDefault();
+    });
+  
+    // Touch events
+    const touchMoveHandler = (e) => {
+      handleMove(e.touches[0].clientX);
+      e.preventDefault();
+    };
+    const touchEndHandler = () => {
+      handleEnd();
+      document.removeEventListener('touchmove', touchMoveHandler);
+      document.removeEventListener('touchend', touchEndHandler);
+    };
+  
+    rowContainer.addEventListener('touchstart', (e) => {
+      handleStart(e.touches[0].clientX);
+      document.addEventListener('touchmove', touchMoveHandler, { passive: false });
+      document.addEventListener('touchend', touchEndHandler);
+      e.preventDefault();
+    });
+  
+    // Keep centered selection stable after resizes
+    window.addEventListener('resize', () => {
+      computeMetrics();
+      const idx = clamp(this.selectedColumnIndices[rowIndex] || 0, 0, (baseCenters?.length || 1) - 1);
+      const snappedOffset = indexToOffset(idx);
+      rowElement.style.transition = 'none';
+      applyOffset(snappedOffset);
+      applySelection(idx);
+    });
+  }
 
     /**
      * Calculate which letter index is currently centered
@@ -708,12 +808,6 @@ class WordSlideGame {
      */
     updateUI() {
         document.getElementById('lives').textContent = this.lives;
-        
-        const progressBtn = document.getElementById('progress-btn');
-        const canProgress = this.foundWords.size >= this.wordsNeededForProgression;
-        progressBtn.disabled = !canProgress;
-        
-        // Update button states
     }
 
     /**
