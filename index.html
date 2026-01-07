@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WordSlide - Word Puzzle Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="center-indicator"></div>
+    <div class="container">
+        <div class="logo-container">
+            <img src="home-page-logo.png" alt="WordSlide Logo" class="logo">
+        </div>
+        <header class="game-header">
+            <button class="btn-reset" id="reset-btn">Reset</button>
+            <div class="hearts-display" id="hearts-display">
+                <span class="heart">❤️</span>
+                <span id="lives">3</span>
+            </div>
+        </header>
+
+        <main class="game-main">
+            <div class="letter-grid-container" id="letter-grid-container">
+                <!-- Letter rows will be generated here -->
+            </div>
+
+            <div class="game-controls">
+                <div class="result-banner" id="result-banner"></div>
+                
+                <button class="btn-progress" id="progress-btn" disabled>
+                    Progress to Next Level
+                </button>
+
+                <div class="action-buttons">
+                    <button class="btn-action btn-confirm" id="confirm-btn">
+                        <span class="btn-icon">✓</span>
+                        <span class="btn-label">Confirm</span>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <div class="game-over-modal" id="game-over-modal">
+            <div class="modal-content">
+                <h2>Game Over</h2>
+                <p id="game-over-message"></p>
+                <div class="modal-buttons">
+                    <button class="btn-modal" id="restart-btn">Restart</button>
+                    <button class="btn-modal" id="back-to-menu-btn">Back to Menu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="dictionary.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
