@@ -115,17 +115,33 @@ class WordSlideGame {
      * Generate a new level
      */
     generateNewLevel() {
-        // TEMPORARY: Single row with 9 random letters for development
-        const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        const randomLetters = [];
-        for (let i = 0; i < 9; i++) {
-            randomLetters.push(letters[Math.floor(Math.random() * letters.length)]);
+        // Generate level with exactly 5 words of 3 letters each
+        const wordLength = 3;
+        const wordCount = 5;
+        
+        // Get available words of the specified length
+        const availableWords = dictionary.wordsOfLength(wordLength);
+        
+        if (availableWords.length < wordCount) {
+            console.error(`Not enough ${wordLength}-letter words in dictionary. Available: ${availableWords.length}, needed: ${wordCount}`);
+            // Fallback to basic words
+            const fallbackWords = ['CAT', 'DOG', 'BAT', 'HAT', 'MAT'];
+            this.currentLevelWords = fallbackWords;
+        } else {
+            // Select exactly 5 random words
+            const shuffled = this.shuffleArray([...availableWords]);
+            this.currentLevelWords = shuffled.slice(0, wordCount);
         }
         
-        // Create single row grid
-        this.letters = [randomLetters];
+        console.log(`Level ${this.currentLevelNumber}: Generated ${wordCount} words of length ${wordLength}: ${this.currentLevelWords.join(', ')}`);
         
-        // Initialize selection to center of the row
+        // Set current word length for validation
+        this.currentWordLength = wordLength;
+        
+        // Generate letter grid from words
+        this.letters = this.generateLettersGrid(this.currentLevelWords);
+        
+        // Initialize selection to center of each row
         this.initializeSelection();
         
         // Reset found words for this level
@@ -133,8 +149,6 @@ class WordSlideGame {
         
         // Initialize drag state
         this.initializeDragState();
-        
-        console.log(`Development mode: Single row with letters: ${randomLetters.join(' ')}`);
     }
 
     /**
@@ -167,34 +181,75 @@ class WordSlideGame {
      * Build word from currently selected letters
      */
     buildWordFromSelection() {
-        // TEMPORARY: For single row development, just return the selected letter
-        if (this.letters.length === 0 || this.letters[0].length === 0) return '';
-        
-        const col = this.selectedColumnIndices[0] || 0;
-        if (col >= 0 && col < this.letters[0].length) {
-            return this.letters[0][col];
+        let word = '';
+        for (let row = 0; row < this.selectedColumnIndices.length; row++) {
+            const col = this.selectedColumnIndices[row];
+            if (row < this.letters.length && col >= 0 && col < this.letters[row].length) {
+                const letter = this.letters[row][col];
+                if (letter && letter !== ' ') {
+                    word += letter;
+                }
+            }
         }
-        return '';
+        return word;
     }
 
     /**
      * Confirm word and validate
      */
     confirmWord() {
-        const letter = this.buildWordFromSelection();
+        const word = this.buildWordFromSelection();
         
-        if (!letter || letter.length === 0) {
-            this.showResult('No letter selected', 'error');
+        if (!word || word.length === 0) {
+            this.showResult('Not a valid word', 'error');
             return;
         }
 
-        // TEMPORARY: For development, just show which letter was selected
-        console.log(`Selected letter: ${letter}`);
-        this.showResult(`Selected: ${letter}`, 'success');
-        
-        // Re-render to update UI
-        this.renderGrid();
-        this.updateUI();
+        // Validate word
+        const isValid = dictionary.isValidWord(word);
+        const correctLength = word.length === this.currentWordLength;
+
+        if (isValid && correctLength) {
+            // Valid word found!
+            this.foundWords.add(word.toUpperCase());
+            this.totalWordsFoundInSession++;
+            this.coins += this.COINS_PER_WORD;
+            
+            console.log(`Found valid ${this.currentWordLength}-letter word '${word.toUpperCase()}' (${this.foundWords.size}/${this.wordsNeededForProgression} words found)`);
+            
+            // Remove used letters
+            this.removeUsedLetters();
+            
+            // Check if grid is empty (level complete)
+            if (this.isGridEmpty()) {
+                this.progressToNextLevel();
+                return;
+            }
+            
+            // Auto-advance selection
+            this.autoAdvanceSelection();
+            
+            // Re-render grid
+            this.renderGrid();
+            this.updateUI();
+            this.showResult(`Great! Found "${word.toUpperCase()}"`, 'success');
+        } else {
+            // Invalid word - lose a life
+            this.lives--;
+            this.showResult('Not a valid word. -1', 'error');
+            
+            if (!correctLength) {
+                console.log(`Wrong length word '${word}' (needs ${this.currentWordLength} letters)`);
+            } else {
+                console.log(`Invalid word '${word}'`);
+            }
+            
+            if (this.lives <= 0) {
+                this.handleGameOver();
+            }
+            
+            this.updateUI();
+        }
     }
 
     /**
