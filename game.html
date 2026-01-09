@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="description" content="WordSlide - Word Puzzle Game">
     <meta name="theme-color" content="#F5C139">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -22,11 +22,36 @@
             <div class="game-header-inner">
                 <button class="btn-reset" id="reset-btn">
                     <img src="img/arrow-u-up-left-fill.svg" alt="restart" class="reset-icon">
-                    Restart
+                    <span>Try again</span>
+                    <span class="tries-counter">(<span id="reset-count">0</span>)</span>
                 </button>
-                <div class="reset-count-display" id="reset-count-display">
-                    <span>Tries: </span>
-                    <span id="reset-count">0</span>
+                <div class="words-found-wrapper">
+                    <button class="words-found-counter" id="words-found-counter">
+                        <span id="words-found-count">0</span> / <span id="words-total-count">0</span> words found
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="currentColor" class="accordion-icon">
+                            <path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"/>
+                        </svg>
+                    </button>
+                    <div class="words-found-accordion" id="words-found-accordion">
+                        <!-- <div class="accordion-header">
+                            <span>Found words:</span>
+                            <button class="accordion-close" id="accordion-close" aria-label="Close">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256" fill="currentColor">
+                                    <path d="M208.49,191.51a12,12,0,0,1-17,17L128,145,64.49,208.49a12,12,0,0,1-17-17L111,128,47.51,64.49a12,12,0,0,1,17-17L128,111l63.51-63.52a12,12,0,0,1,17,17L145,128Z"/>
+                                </svg>
+                            </button>
+                        </div> -->
+                        <div class="accordion-content">
+                            <div class="words-section">
+                                <div class="words-section-title">Today's words found</div>
+                                <div class="found-words-list" id="found-words-list"></div>
+                            </div>
+                            <div class="words-section">
+                                <div class="words-section-title">Other words found</div>
+                                <div class="found-words-list" id="other-found-words-list"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </header>

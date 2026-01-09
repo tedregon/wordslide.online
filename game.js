@@ -11,7 +11,10 @@ class WordSlideGame {
         this.currentLevelNumber = 1;
         this.currentWordLength = 5;
         this.wordsNeededForProgression = 5;
-        this.foundWords = new Set();
+        this.foundWords = []; // Array to preserve order (level words only)
+        this.foundWordsSet = new Set(); // Set for quick lookup (level words only)
+        this.otherFoundWords = []; // Array to preserve order (valid words not in level)
+        this.otherFoundWordsSet = new Set(); // Set for quick lookup (other words)
         this.totalWordsFoundInSession = 0;
         this.highscore = this.loadHighscore();
         this.resetCount = 0;
@@ -67,6 +70,37 @@ class WordSlideGame {
         document.getElementById('restart-btn').addEventListener('click', () => this.restartGame());
         document.getElementById('back-to-menu-btn').addEventListener('click', () => {
             window.location.href = 'index.html';
+        });
+        
+        // Words found accordion toggle
+        const wordsFoundCounter = document.getElementById('words-found-counter');
+        const wordsFoundAccordion = document.getElementById('words-found-accordion');
+        const accordionClose = document.getElementById('accordion-close');
+        
+        if (wordsFoundCounter && wordsFoundAccordion) {
+            wordsFoundCounter.addEventListener('click', () => {
+                const isExpanded = wordsFoundAccordion.classList.contains('show');
+                if (isExpanded) {
+                    this.closeAccordion();
+                } else {
+                    this.openAccordion();
+                }
+            });
+        }
+        
+        if (accordionClose) {
+            accordionClose.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.closeAccordion();
+            });
+        }
+        
+        // Close accordion when clicking outside
+        document.addEventListener('click', (e) => {
+            const wrapper = document.querySelector('.words-found-wrapper');
+            if (wrapper && !wrapper.contains(e.target)) {
+                this.closeAccordion();
+            }
         });
     }
 
@@ -146,8 +180,8 @@ class WordSlideGame {
         // Initialize selection to center of each row
         this.initializeSelection();
         
-        // Reset found words for this level
-        this.foundWords.clear();
+        // Load found words from localStorage for this level
+        this.loadFoundWords();
         
         // Reset tries count to 1 for new level (first play is try 1)
         this.resetCount = 1;
@@ -215,21 +249,39 @@ class WordSlideGame {
         const correctLength = word.length === this.currentWordLength;
 
         if (isValid && correctLength) {
-            // Valid word found!
-            this.foundWords.add(word.toUpperCase());
+            const wordUpper = word.toUpperCase();
+            
+            // Check if this word is one of the words used to generate the level
+            const isLevelWord = this.currentLevelWords.some(levelWord => 
+                levelWord.toUpperCase() === wordUpper
+            );
+            
+            // Track level words
+            if (isLevelWord && !this.foundWordsSet.has(wordUpper)) {
+                // Valid level word found! Add to array (preserves order) and set
+                this.foundWords.push(wordUpper);
+                this.foundWordsSet.add(wordUpper);
+                this.saveFoundWords();
+            } else if (!isLevelWord && !this.otherFoundWordsSet.has(wordUpper)) {
+                // Valid word but not a level word - track as "other word"
+                this.otherFoundWords.push(wordUpper);
+                this.otherFoundWordsSet.add(wordUpper);
+                this.saveFoundWords();
+            }
+            
             this.totalWordsFoundInSession++;
             this.coins += this.COINS_PER_WORD;
             
-            console.log(`Found valid ${this.currentWordLength}-letter word '${word.toUpperCase()}' (${this.foundWords.size}/${this.wordsNeededForProgression} words found)`);
+            const levelWordsFound = this.foundWords.length;
+            console.log(`Found valid ${this.currentWordLength}-letter word '${wordUpper}' (${levelWordsFound}/${this.wordsNeededForProgression} level words found)`);
             
             // Remove used letters
             this.removeUsedLetters();
             
             // Check if all words are found first
-            if (this.foundWords.size >= this.wordsNeededForProgression) {
+            if (this.foundWords.length >= this.wordsNeededForProgression) {
                 // Store found words in localStorage
-                const wordsArray = Array.from(this.foundWords);
-                localStorage.setItem('completedWords', JSON.stringify(wordsArray));
+                localStorage.setItem('completedWords', JSON.stringify(this.foundWords));
                 
                 // Store reset count in localStorage
                 localStorage.setItem('completedResetCount', this.resetCount.toString());
@@ -363,7 +415,7 @@ class WordSlideGame {
      */
     progressToNextLevel() {
         // Check if user can progress
-        if (this.foundWords.size < this.wordsNeededForProgression) {
+        if (this.foundWords.length < this.wordsNeededForProgression) {
             this.showResult(`Find at least ${this.wordsNeededForProgression} words to progress`, 'info');
             return;
         }
@@ -459,8 +511,7 @@ class WordSlideGame {
             // Initialize selection to center of each row
             this.initializeSelection();
             
-            // Reset found words for this level
-            this.foundWords.clear();
+            // Keep found words (don't clear on reset)
             
             // Initialize drag state
             this.initializeDragState();
@@ -488,7 +539,10 @@ class WordSlideGame {
         this.currentLevelNumber = 1;
         this.totalWordsFoundInSession = 0;
         this.resetCount = 1; // Start at 1 since the first play is try 1
-        this.foundWords.clear();
+        this.foundWords = [];
+        this.foundWordsSet.clear();
+        this.otherFoundWords = [];
+        this.otherFoundWordsSet.clear();
         this.showGameOver = false;
         this.generateNewLevel();
         this.renderGrid();
@@ -919,11 +973,28 @@ setupRowDragHandlers(rowContainer, rowElement, rowIndex) {
      * Update UI elements
      */
     updateUI() {
-        // Update reset counter
+        // Update reset counter (tries) next to Restart button
         const resetDisplay = document.getElementById('reset-count');
         if (resetDisplay) {
             resetDisplay.textContent = this.resetCount;
         }
+        
+        // Update words found counter (X / Y)
+        const wordsFoundCount = document.getElementById('words-found-count');
+        const wordsTotalCount = document.getElementById('words-total-count');
+        if (wordsFoundCount && wordsTotalCount) {
+            // Count only words that match the level's generated words
+            const levelWordsFound = this.foundWords.filter(word => 
+                this.currentLevelWords.some(levelWord => 
+                    levelWord.toUpperCase() === word.toUpperCase()
+                )
+            ).length;
+            wordsFoundCount.textContent = levelWordsFound;
+            wordsTotalCount.textContent = this.currentLevelWords.length;
+        }
+        
+        // Update found words display
+        this.updateFoundWordsDisplay();
     }
 
     /**
@@ -938,6 +1009,144 @@ setupRowDragHandlers(rowContainer, rowElement, rowIndex) {
         setTimeout(() => {
             banner.classList.remove('show');
         }, 3000);
+    }
+
+    /**
+     * Get storage key for found words based on current level words
+     */
+    getFoundWordsStorageKey() {
+        if (!this.currentLevelWords || this.currentLevelWords.length === 0) {
+            return 'wordslide_foundWords_default';
+        }
+        // Create a key based on sorted level words (so same level = same key)
+        const sortedWords = [...this.currentLevelWords].sort().join(',');
+        return `wordslide_foundWords_${sortedWords}`;
+    }
+
+    /**
+     * Load found words from localStorage
+     */
+    loadFoundWords() {
+        const key = this.getFoundWordsStorageKey();
+        const saved = localStorage.getItem(key);
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                
+                // Handle both old format (array) and new format (object)
+                if (Array.isArray(data)) {
+                    // Old format - migrate to new format
+                    this.foundWords = data.filter(word => 
+                        this.currentLevelWords.some(levelWord => 
+                            levelWord.toUpperCase() === word.toUpperCase()
+                        )
+                    );
+                    this.otherFoundWords = [];
+                } else {
+                    // New format with levelWords and otherWords
+                    const loadedLevelWords = data.levelWords || [];
+                    const loadedOtherWords = data.otherWords || [];
+                    
+                    // Filter to only include words that are in the current level's words
+                    this.foundWords = loadedLevelWords.filter(word => 
+                        this.currentLevelWords.some(levelWord => 
+                            levelWord.toUpperCase() === word.toUpperCase()
+                        )
+                    );
+                    this.otherFoundWords = loadedOtherWords;
+                }
+                
+                this.foundWordsSet = new Set(this.foundWords);
+                this.otherFoundWordsSet = new Set(this.otherFoundWords);
+                console.log(`Loaded ${this.foundWords.length} level words and ${this.otherFoundWords.length} other words from storage`);
+            } catch (e) {
+                console.error('Error loading found words:', e);
+                this.foundWords = [];
+                this.foundWordsSet = new Set();
+                this.otherFoundWords = [];
+                this.otherFoundWordsSet = new Set();
+            }
+        } else {
+            this.foundWords = [];
+            this.foundWordsSet = new Set();
+            this.otherFoundWords = [];
+            this.otherFoundWordsSet = new Set();
+        }
+        this.updateFoundWordsDisplay();
+    }
+
+    /**
+     * Save found words to localStorage
+     */
+    saveFoundWords() {
+        const key = this.getFoundWordsStorageKey();
+        const data = {
+            levelWords: this.foundWords,
+            otherWords: this.otherFoundWords
+        };
+        localStorage.setItem(key, JSON.stringify(data));
+        this.updateFoundWordsDisplay();
+    }
+
+    /**
+     * Update the found words display in the accordion
+     */
+    updateFoundWordsDisplay() {
+        const levelWordsList = document.getElementById('found-words-list');
+        const otherWordsList = document.getElementById('other-found-words-list');
+        
+        // Display today's words (level words)
+        if (levelWordsList) {
+            // Filter to only show words that are in the current level's words
+            const levelWordsFound = this.foundWords.filter(word => 
+                this.currentLevelWords.some(levelWord => 
+                    levelWord.toUpperCase() === word.toUpperCase()
+                )
+            );
+
+            if (levelWordsFound.length === 0) {
+                levelWordsList.innerHTML = '<span class="no-words-message">No words found yet</span>';
+            } else {
+                levelWordsList.innerHTML = levelWordsFound.map(word => 
+                    `<span class="found-word">${word}</span>`
+                ).join('');
+            }
+        }
+        
+        // Display other words found
+        if (otherWordsList) {
+            if (this.otherFoundWords.length === 0) {
+                otherWordsList.innerHTML = '<span class="no-words-message">No other words found yet</span>';
+            } else {
+                otherWordsList.innerHTML = this.otherFoundWords.map(word => 
+                    `<span class="found-word">${word}</span>`
+                ).join('');
+            }
+        }
+    }
+
+    /**
+     * Open the accordion
+     */
+    openAccordion() {
+        const wordsFoundAccordion = document.getElementById('words-found-accordion');
+        const wordsFoundCounter = document.getElementById('words-found-counter');
+        if (wordsFoundAccordion && wordsFoundCounter) {
+            wordsFoundAccordion.classList.add('show');
+            wordsFoundCounter.classList.add('expanded');
+        }
+    }
+
+    /**
+     * Close the accordion
+     */
+    closeAccordion() {
+        const wordsFoundAccordion = document.getElementById('words-found-accordion');
+        const wordsFoundCounter = document.getElementById('words-found-counter');
+        if (wordsFoundAccordion && wordsFoundCounter) {
+            wordsFoundAccordion.classList.remove('show');
+            wordsFoundCounter.classList.remove('expanded');
+        }
     }
 
     /**

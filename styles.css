@@ -25,6 +25,11 @@ body {
     max-height: 1000px;
     overflow-x: hidden;
     overflow-y: auto;
+    /* Safe area insets for iPhone notch and home indicator */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
 }
 
 .container {
@@ -119,18 +124,145 @@ body {
     gap: 6px;
 }
 
+.btn-reset .tries-counter {
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 400;
+}
+
 .btn-reset .reset-icon {
     width: 18px;
     height: 18px;
     vertical-align: middle;
 }
 
-.coins-display, .hearts-display, .reset-count-display {
+.coins-display, .hearts-display {
     display: flex;
     align-items: center;
     gap: 6px;
     font-size: 16px;
     font-weight: 500;
+}
+
+/* Words Found Counter Button */
+.words-found-wrapper {
+    position: relative;
+}
+
+.words-found-counter {
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.2s;
+}
+
+.words-found-counter:hover {
+    background: var(--card-bg);
+}
+
+.words-found-counter .accordion-icon {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.3s;
+    flex-shrink: 0;
+}
+
+.words-found-counter.expanded .accordion-icon {
+    transform: rotate(180deg);
+}
+
+/* Words Found Accordion */
+.words-found-accordion {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 8px;
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 16px;
+    min-width: 280px;
+    max-width: 400px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 100;
+    opacity: 0;
+    transform: translateY(-10px);
+    pointer-events: none;
+    transition: all 0.3s;
+    max-height: 0;
+    overflow: hidden;
+}
+
+.words-found-accordion.show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+    max-height: 500px;
+}
+
+.accordion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.accordion-close {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.accordion-close:hover {
+    background: var(--bg-color);
+    color: var(--text-color);
+}
+
+.accordion-close svg {
+    width: 18px;
+    height: 18px;
+}
+
+.accordion-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.words-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.words-section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 4px;
+}
+
+.no-words-message {
+    color: var(--text-color);
+    font-size: 14px;
+    font-style: italic;
 }
 
 .coins-icon {
@@ -227,6 +359,27 @@ body {
     gap: 12px;
     margin: 0;
     padding: 0 20px;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+}
+
+/* Found Words List (in accordion) */
+.words-found-accordion .found-words-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.words-found-accordion .found-word {
+    color: var(--text-color);
+    font-size: 14px;
+    font-weight: 400;
+}
+
+/* Ensure all text in accordion is white */
+.words-found-accordion {
+    color: var(--text-color);
 }
 
 .result-banner {
@@ -412,6 +565,11 @@ body {
     opacity: 0;
     pointer-events: none;
     transition: all 0.3s;
+    /* Safe area insets for iPhone */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
 }
 
 .game-over-modal.show {
@@ -495,6 +653,11 @@ body {
     opacity: 0;
     pointer-events: none;
     transition: all 0.3s;
+    /* Safe area insets for iPhone */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
 }
 
 .update-modal.show {
@@ -517,6 +680,11 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    /* Safe area insets for iPhone */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
     z-index: 1000;
     opacity: 0;
     pointer-events: none;
@@ -567,7 +735,7 @@ body {
 .words-section {
     width: 100%;
     max-width: 400px;
-    margin-bottom: 40px;
+    margin-bottom: 0px;
 }
 
 .words-title {
@@ -711,6 +879,7 @@ body {
 .page-footer {
     text-align: center;
     padding: 20px;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
     color: var(--text-secondary);
     font-size: 14px;
     margin-top: auto;
