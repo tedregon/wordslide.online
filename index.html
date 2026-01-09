@@ -15,6 +15,7 @@
     <link rel="apple-touch-icon" href="img/wordslide-logo.png">
     <link rel="stylesheet" href="styles.css">
     <script src="sw-register.js"></script>
+    <script src="index.js"></script>
 </head>
 <body>
     <div class="container">
@@ -35,7 +36,8 @@
             </section>
 
             <div class="play-button-container">
-                <a href="game.html" class="btn-play">Play</a>
+                <a href="game.html" class="btn-play" id="play-btn">Play</a>
+                <p class="offline-message" id="offline-message" style="display: none;">The game requires an internet connection</p>
             </div>
         </div>
 
