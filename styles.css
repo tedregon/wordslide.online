@@ -112,9 +112,8 @@ body {
     color: var(--text-color);
     font-size: 16px;
     cursor: pointer;
-    padding: 8px 12px;
+    padding: 0;
     border-radius: 6px;
-    transition: background 0.2s;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -126,16 +125,12 @@ body {
     vertical-align: middle;
 }
 
-.btn-reset:hover {
-    background: var(--card-bg);
-}
-
 .coins-display, .hearts-display, .reset-count-display {
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 18px;
-    font-weight: 600;
+    font-size: 16px;
+    font-weight: 500;
 }
 
 .coins-icon {
@@ -148,7 +143,7 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 20px 0;
+    padding: 0 0 20px 0;
     width: 100%;
 }
 
@@ -160,7 +155,7 @@ body {
     justify-content: center;
     align-items: center;
     gap: 4px;
-    margin: 20px 0;
+    margin: 0;
     padding: 24px 0;
     overflow-y: auto;
     overflow-x: hidden;
@@ -230,7 +225,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    margin-top: 20px;
+    margin: 0;
     padding: 0 20px;
 }
 
@@ -374,9 +369,13 @@ body {
     background: white;
     color: var(--bg-color);
     max-width: 410px;
-    padding: 16px 48px;
+    padding: 0 48px;
+    height: 42px;
     font-size: 20px;
     font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn-action.btn-confirm:hover:not(:disabled) {
