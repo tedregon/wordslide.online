@@ -48,7 +48,7 @@ class WordSlideGame {
         // Register service worker for PWA
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
+                navigator.serviceWorker.register('./sw.js')
                     .then((registration) => {
                         console.log('ServiceWorker registration successful:', registration.scope);
                     })
@@ -470,15 +470,12 @@ class WordSlideGame {
             // Initialize selection to center of each row
             this.initializeSelection();
             
-        // Reset found words for this level
-        this.foundWords.clear();
-        
-        // Reset tries count to 1 for new level (first play is try 1)
-        this.resetCount = 1;
-        
-        // Initialize drag state
-        this.initializeDragState();
-    }
+            // Reset found words for this level
+            this.foundWords.clear();
+            
+            // Initialize drag state
+            this.initializeDragState();
+        }
         
         // Clear any result messages
         const banner = document.getElementById('result-banner');

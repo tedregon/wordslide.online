@@ -2,11 +2,12 @@
   "name": "WordSlide",
   "short_name": "WordSlide",
   "description": "Word Puzzle Game",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#181826",
   "theme_color": "#F5C139",
   "orientation": "portrait",
+  "scope": "./",
   "icons": [
     {
       "src": "img/wordslide-logo.png",

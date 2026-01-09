@@ -1,16 +1,18 @@
 // Service Worker for WordSlide PWA
 const CACHE_NAME = 'wordslide-v2';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/completion.html',
-  '/styles.css',
-  '/game.js',
-  '/dictionary.js',
-  '/img/wordslide-logo.png',
-  '/img/home-page-logo.png',
-  '/img/confetti-fill.svg',
-  '/img/heart-fill.svg'
+  './',
+  './index.html',
+  './completion.html',
+  './game.html',
+  './styles.css',
+  './game.js',
+  './dictionary.js',
+  './img/wordslide-logo.png',
+  './img/home-page-logo.png',
+  './img/confetti-fill.svg',
+  './img/heart-fill.svg',
+  './img/arrow-u-up-left-fill.svg'
 ];
 
 // Install event - cache resources
@@ -77,7 +79,7 @@ self.addEventListener('fetch', (event) => {
         })
         .catch(() => {
           if (event.request.destination === 'document') {
-            return caches.match('/index.html');
+            return caches.match('./index.html');
           }
         })
     );
