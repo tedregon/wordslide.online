@@ -1,5 +1,5 @@
 // Service Worker for WordSlide PWA
-const CACHE_NAME = 'wordslide-v1';
+const CACHE_NAME = 'wordslide-v2';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -45,20 +45,42 @@ self.addEventListener('activate', (event) => {
   return self.clients.claim();
 });
 
-// Fetch event - serve from cache, fallback to network
+// Fetch event - network first for CSS and images, cache first for others
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Return cached version or fetch from network
-        return response || fetch(event.request);
-      })
-      .catch(() => {
-        // If both fail, return offline page or fallback
-        if (event.request.destination === 'document') {
-          return caches.match('/index.html');
-        }
-      })
-  );
+  const url = new URL(event.request.url);
+  const isCSS = url.pathname.endsWith('.css');
+  const isImage = /\.(png|jpg|jpeg|svg|gif|webp)$/i.test(url.pathname);
+  
+  // For CSS and images, try network first, then cache
+  if (isCSS || isImage) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          // Update cache with fresh response
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseClone);
+          });
+          return response;
+        })
+        .catch(() => {
+          // If network fails, try cache
+          return caches.match(event.request);
+        })
+    );
+  } else {
+    // For other files, cache first, then network
+    event.respondWith(
+      caches.match(event.request)
+        .then((response) => {
+          return response || fetch(event.request);
+        })
+        .catch(() => {
+          if (event.request.destination === 'document') {
+            return caches.match('/index.html');
+          }
+        })
+    );
+  }
 });
 
