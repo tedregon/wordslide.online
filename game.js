@@ -45,18 +45,7 @@ class WordSlideGame {
     }
 
     async init() {
-        // Register service worker for PWA
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then((registration) => {
-                        console.log('ServiceWorker registration successful:', registration.scope);
-                    })
-                    .catch((error) => {
-                        console.log('ServiceWorker registration failed:', error);
-                    });
-            });
-        }
+        // Service worker is registered via sw-register.js
         
         // Load dictionary first
         await dictionary.load();

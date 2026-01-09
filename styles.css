@@ -480,6 +480,32 @@ body {
     background: #3D3D5F;
 }
 
+/* Update Modal */
+.update-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s;
+}
+
+.update-modal.show {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.update-modal.show .modal-content {
+    transform: scale(1);
+}
+
 /* Completion Modal */
 .completion-modal {
     position: fixed;

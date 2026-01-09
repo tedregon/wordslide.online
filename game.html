@@ -14,6 +14,7 @@
     <link rel="apple-touch-icon" href="img/wordslide-logo.png">
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2"></script>
+    <script src="sw-register.js"></script>
 </head>
 <body>
     <div class="container">
@@ -53,6 +54,17 @@
                 <div class="modal-buttons">
                     <button class="btn-modal" id="restart-btn">Restart</button>
                     <button class="btn-modal" id="back-to-menu-btn">Back to Menu</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="update-modal" id="update-modal">
+            <div class="modal-content">
+                <h2>Update Available</h2>
+                <p>A new version of WordSlide is available. Refresh to get the latest features and improvements.</p>
+                <div class="modal-buttons">
+                    <button class="btn-modal" id="update-refresh-btn">Refresh</button>
+                    <button class="btn-modal" id="update-later-btn">Later</button>
                 </div>
             </div>
         </div>
