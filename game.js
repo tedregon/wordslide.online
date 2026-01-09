@@ -77,8 +77,7 @@ class WordSlideGame {
         document.getElementById('reset-btn').addEventListener('click', () => this.resetLevel());
         document.getElementById('restart-btn').addEventListener('click', () => this.restartGame());
         document.getElementById('back-to-menu-btn').addEventListener('click', () => {
-            // For now, just restart
-            this.restartGame();
+            window.location.href = 'index.html';
         });
     }
 
@@ -160,6 +159,9 @@ class WordSlideGame {
         
         // Reset found words for this level
         this.foundWords.clear();
+        
+        // Reset tries count to 1 for new level (first play is try 1)
+        this.resetCount = 1;
         
         // Initialize drag state
         this.initializeDragState();
@@ -468,12 +470,15 @@ class WordSlideGame {
             // Initialize selection to center of each row
             this.initializeSelection();
             
-            // Reset found words for this level
-            this.foundWords.clear();
-            
-            // Initialize drag state
-            this.initializeDragState();
-        }
+        // Reset found words for this level
+        this.foundWords.clear();
+        
+        // Reset tries count to 1 for new level (first play is try 1)
+        this.resetCount = 1;
+        
+        // Initialize drag state
+        this.initializeDragState();
+    }
         
         // Clear any result messages
         const banner = document.getElementById('result-banner');
@@ -496,7 +501,7 @@ class WordSlideGame {
         this.coins = 0;
         this.currentLevelNumber = 1;
         this.totalWordsFoundInSession = 0;
-        this.resetCount = 0;
+        this.resetCount = 1; // Start at 1 since the first play is try 1
         this.foundWords.clear();
         this.showGameOver = false;
         this.generateNewLevel();

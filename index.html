@@ -17,50 +17,30 @@
 </head>
 <body>
     <div class="container">
-        <div class="logo-container">
-            <img src="img/home-page-logo.png" alt="WordSlide Logo" class="logo">
-        </div>
-        <header class="game-header">
-            <div class="game-header-inner">
-                <button class="btn-reset" id="reset-btn">Restart</button>
-                <div class="reset-count-display" id="reset-count-display">
-                    <span>Tries: </span>
-                    <span id="reset-count">0</span>
-                </div>
+        <div class="landing-content">
+            <div class="logo-container">
+                <img src="img/home-page-logo.png" alt="WordSlide Logo" class="logo">
             </div>
-        </header>
-
-        <main class="game-main">
-            <div class="letter-grid-container" id="letter-grid-container">
-                <!-- Letter rows will be generated here -->
-            </div>
-
-            <div class="game-controls">
-                <div class="result-banner" id="result-banner"></div>
-
-                <div class="action-buttons">
-                    <button class="btn-action btn-confirm" id="confirm-btn">
-                        <span class="btn-label">Confirm</span>
-                    </button>
+            <section class="how-to-play">
+                <h2 class="how-to-play-title">How to Play</h2>
+                <div class="instructions">
+                    <ul class="instructions-list">
+                        <li>Drag rows to choose letters</li>
+                        <li>Select letters from each row to form a word</li>
+                        <li>Click "Confirm" to submit your word</li>
+                        <li>Find all the words to complete the puzzle</li>
+                    </ul>
                 </div>
-            </div>
-        </main>
+            </section>
 
-        <div class="game-over-modal" id="game-over-modal">
-            <div class="modal-content">
-                <h2>Game Over</h2>
-                <p id="game-over-message"></p>
-                <div class="modal-buttons">
-                    <button class="btn-modal" id="restart-btn">Restart</button>
-                    <button class="btn-modal" id="back-to-menu-btn">Back to Menu</button>
-                </div>
+            <div class="play-button-container">
+                <a href="game.html" class="btn-play">Play</a>
             </div>
         </div>
+
         <footer class="page-footer">
             Created by <a href="https://chipdoes.app" target="_blank" rel="noopener noreferrer">@Chip Rian</a>
         </footer>
     </div>
-    <script src="dictionary.js"></script>
-    <script src="game.js"></script>
 </body>
 </html>
