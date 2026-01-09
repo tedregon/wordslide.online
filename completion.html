@@ -28,10 +28,12 @@
             <p class="completion-message">You completed today's puzzle<span id="tries-message"></span></p>
             
             <div class="completion-actions">
-                <!-- <button class="btn-action btn-share" id="share-btn">
+                <button class="btn-action btn-share" id="share-btn">
                     <span class="btn-label">Share results</span>
-                </button> -->
-                
+                </button>
+                <button class="btn-action btn-copy" id="copy-btn">
+                    <span class="btn-label">Copy</span>
+                </button>
             </div>
         </div>
         <footer class="page-footer">
@@ -43,17 +45,61 @@
         // Get and display reset count (tries)
         const resetCount = localStorage.getItem('completedResetCount');
         const triesMessage = document.getElementById('tries-message');
+        let tries = 1;
         if (resetCount !== null) {
-            const tries = parseInt(resetCount, 10);
+            tries = parseInt(resetCount, 10);
             triesMessage.textContent = ` in ${tries} ${tries === 1 ? 'try' : 'tries'}`;
         } else {
-            triesMessage.textContent = ' in 0 tries';
+            triesMessage.textContent = ' in 1 try';
         }
         
-        // Share button (placeholder for now)
+        // Function to get share text
+        function getShareText() {
+            return `I have completed today's WordSlide puzzle in ${tries} ${tries === 1 ? 'try' : 'tries'} https://tedregon.github.io/wordslide.online/`;
+        }
+        
+        // Share button - share to X/Twitter
         document.getElementById('share-btn').addEventListener('click', () => {
-            // Share functionality to be implemented later
-            console.log('Share clicked');
+            const message = `I have completed today's WordSlide puzzle in ${tries} ${tries === 1 ? 'try' : 'tries'}`;
+            const url = 'https://tedregon.github.io/wordslide.online/';
+            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}&url=${encodeURIComponent(url)}`;
+            window.open(twitterUrl, '_blank', 'width=550,height=420');
+        });
+        
+        // Copy button - copy share text to clipboard
+        document.getElementById('copy-btn').addEventListener('click', async () => {
+            const shareText = getShareText();
+            try {
+                await navigator.clipboard.writeText(shareText);
+                // Show feedback
+                const copyBtn = document.getElementById('copy-btn');
+                const originalText = copyBtn.querySelector('.btn-label').textContent;
+                copyBtn.querySelector('.btn-label').textContent = 'Copied!';
+                setTimeout(() => {
+                    copyBtn.querySelector('.btn-label').textContent = originalText;
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy text:', err);
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = shareText;
+                textArea.style.position = 'fixed';
+                textArea.style.opacity = '0';
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    const copyBtn = document.getElementById('copy-btn');
+                    const originalText = copyBtn.querySelector('.btn-label').textContent;
+                    copyBtn.querySelector('.btn-label').textContent = 'Copied!';
+                    setTimeout(() => {
+                        copyBtn.querySelector('.btn-label').textContent = originalText;
+                    }, 2000);
+                } catch (fallbackErr) {
+                    console.error('Fallback copy failed:', fallbackErr);
+                }
+                document.body.removeChild(textArea);
+            }
         });
     </script>
 </body>
