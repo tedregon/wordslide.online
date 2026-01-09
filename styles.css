@@ -681,10 +681,8 @@ body {
     align-items: center;
     justify-content: center;
     /* Safe area insets for iPhone */
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
+    padding-top: 16px;
+    padding-bottom: 16px;
     z-index: 1000;
     opacity: 0;
     pointer-events: none;
