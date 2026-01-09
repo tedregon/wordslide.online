@@ -481,63 +481,6 @@ class WordSlideGame {
     }
 
     /**
-     * Add random word to grid
-     */
-    addRandomWord() {
-        if (this.coins < this.ADD_WORD_COST) {
-            this.showResult('Not enough coins', 'error');
-            return;
-        }
-        
-        const randomWord = dictionary.randomWord(this.currentWordLength);
-        if (!randomWord) {
-            this.showResult('Could not find a word', 'error');
-            return;
-        }
-        
-        this.coins -= this.ADD_WORD_COST;
-        
-        // Ensure we have enough rows
-        while (this.letters.length < this.currentWordLength) {
-            this.letters.push([]);
-            this.selectedColumnIndices.push(0);
-        }
-        
-        // Add each letter to its corresponding row
-        for (let i = 0; i < randomWord.length; i++) {
-            if (i < this.letters.length) {
-                this.letters[i].push(randomWord[i]);
-            }
-        }
-        
-        // Shuffle each row
-        for (let row = 0; row < this.letters.length; row++) {
-            this.letters[row] = this.shuffleArray(this.letters[row]);
-        }
-        
-        this.validateAndFixIndices();
-        this.renderGrid();
-        this.updateUI();
-        this.showResult('Added random letters', 'success');
-    }
-
-    /**
-     * Add one life
-     */
-    addLife() {
-        if (this.coins < this.ADD_LIFE_COST) {
-            this.showResult('Not enough coins', 'error');
-            return;
-        }
-        
-        this.coins -= this.ADD_LIFE_COST;
-        this.lives++;
-        this.updateUI();
-        this.showResult('Received an extra heart', 'success');
-    }
-
-
-    /**
      * Reset current level using the same words
      */
     async resetLevel() {
@@ -595,24 +538,6 @@ class WordSlideGame {
         this.updateUI();
         document.getElementById('game-over-modal').classList.remove('show');
     }
-
-    /**
-     * Handle game over
-     */
-    handleGameOver() {
-        this.showGameOver = true;
-        
-        // Update highscore
-        if (this.totalWordsFoundInSession > this.highscore) {
-            this.highscore = this.totalWordsFoundInSession;
-            this.saveHighscore();
-        }
-        
-        const message = `Game Over!\nScore: ${this.totalWordsFoundInSession}, Highscore: ${this.highscore}`;
-        document.getElementById('game-over-message').textContent = message;
-        document.getElementById('game-over-modal').classList.add('show');
-    }
-
 
     /**
      * Render the letter grid
