@@ -56,6 +56,11 @@ class WordSlideGame {
         // Generate initial level (will try Firebase first, fallback to random)
         await this.generateNewLevel();
         
+        // Check if all words have been found - if so, redirect to completion page
+        if (this.checkAllWordsFound()) {
+            return; // Redirect will happen in checkAllWordsFound
+        }
+        
         // Setup event listeners
         this.setupEventListeners();
         
@@ -188,7 +193,10 @@ class WordSlideGame {
         // Determine word length from the words (they should all be the same length)
         this.currentWordLength = this.currentLevelWords[0] ? this.currentLevelWords[0].length : 5;
         
-        console.log(`Level ${this.currentLevelNumber}: Using ${this.currentLevelWords.length} words of length ${this.currentWordLength}: ${this.currentLevelWords.join(', ')}`);
+        // Set words needed for progression to match the number of words used to generate the level
+        this.wordsNeededForProgression = this.currentLevelWords.length;
+        
+        // console.log(`Level ${this.currentLevelNumber}: Using ${this.currentLevelWords.length} words of length ${this.currentWordLength}: ${this.currentLevelWords.join(', ')}`);
         
         // Generate letter grid from words
         this.letters = this.generateLettersGrid(this.currentLevelWords);
@@ -289,7 +297,7 @@ class WordSlideGame {
             this.coins += this.COINS_PER_WORD;
             
             const levelWordsFound = this.foundWords.length;
-            console.log(`Found valid ${this.currentWordLength}-letter word '${wordUpper}' (${levelWordsFound}/${this.wordsNeededForProgression} level words found)`);
+            // console.log(`Found valid ${this.currentWordLength}-letter word '${wordUpper}' (${levelWordsFound}/${this.wordsNeededForProgression} level words found)`);
             
             // Remove used letters
             this.removeUsedLetters();
@@ -427,6 +435,28 @@ class WordSlideGame {
     }
 
     /**
+     * Check if all words have been found and redirect to completion page if so
+     */
+    checkAllWordsFound() {
+        if (this.foundWords.length >= this.wordsNeededForProgression) {
+            console.log('All words already found, redirecting to completion page');
+            // Store found words in localStorage (in case they weren't already stored)
+            localStorage.setItem('completedWords', JSON.stringify(this.foundWords));
+            
+            // Store reset count in localStorage (load from existing or use current)
+            const savedResetCount = localStorage.getItem('completedResetCount');
+            if (!savedResetCount) {
+                localStorage.setItem('completedResetCount', this.resetCount.toString());
+            }
+            
+            // Redirect to completion page
+            window.location.href = 'completion.html';
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Progress to next level
      */
     async progressToNextLevel() {
@@ -536,7 +566,7 @@ class WordSlideGame {
         // Clear any result messages
         const banner = document.getElementById('result-banner');
         banner.classList.remove('show');
-        banner.innerHTML = '';
+        banner.textContent = '';
         this.result = '';
         this.showGameOver = false;
         
@@ -589,10 +619,16 @@ class WordSlideGame {
      */
     renderGrid() {
         const container = document.getElementById('letter-grid-container');
-        container.innerHTML = '';
+        // Clear container safely
+        while (container.firstChild) {
+            container.removeChild(container.firstChild);
+        }
         
         if (this.letters.length === 0) {
-            container.innerHTML = '<div class="empty-grid">Loading...</div>';
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'empty-grid';
+            loadingDiv.textContent = 'Loading...';
+            container.appendChild(loadingDiv);
             return;
         }
         
@@ -1019,7 +1055,7 @@ setupRowDragHandlers(rowContainer, rowElement, rowIndex) {
     showResult(message, type = 'info') {
         this.result = message;
         const banner = document.getElementById('result-banner');
-        banner.innerHTML = message;
+        banner.textContent = message;
         banner.className = `result-banner ${type} show`;
         
         setTimeout(() => {
@@ -1120,23 +1156,41 @@ setupRowDragHandlers(rowContainer, rowElement, rowIndex) {
                 )
             );
 
+            // Clear existing content
+            levelWordsList.textContent = '';
+            
             if (levelWordsFound.length === 0) {
-                levelWordsList.innerHTML = '<span class="no-words-message">No words found yet</span>';
+                const noWordsSpan = document.createElement('span');
+                noWordsSpan.className = 'no-words-message';
+                noWordsSpan.textContent = 'No words found yet';
+                levelWordsList.appendChild(noWordsSpan);
             } else {
-                levelWordsList.innerHTML = levelWordsFound.map(word => 
-                    `<span class="found-word">${word}</span>`
-                ).join('');
+                levelWordsFound.forEach(word => {
+                    const wordSpan = document.createElement('span');
+                    wordSpan.className = 'found-word';
+                    wordSpan.textContent = word;
+                    levelWordsList.appendChild(wordSpan);
+                });
             }
         }
         
         // Display other words found
         if (otherWordsList) {
+            // Clear existing content
+            otherWordsList.textContent = '';
+            
             if (this.otherFoundWords.length === 0) {
-                otherWordsList.innerHTML = '<span class="no-words-message">No other words found yet</span>';
+                const noWordsSpan = document.createElement('span');
+                noWordsSpan.className = 'no-words-message';
+                noWordsSpan.textContent = 'No other words found yet';
+                otherWordsList.appendChild(noWordsSpan);
             } else {
-                otherWordsList.innerHTML = this.otherFoundWords.map(word => 
-                    `<span class="found-word">${word}</span>`
-                ).join('');
+                this.otherFoundWords.forEach(word => {
+                    const wordSpan = document.createElement('span');
+                    wordSpan.className = 'found-word';
+                    wordSpan.textContent = word;
+                    otherWordsList.appendChild(wordSpan);
+                });
             }
         }
     }

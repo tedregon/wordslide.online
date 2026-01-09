@@ -157,6 +157,8 @@ body {
     align-items: center;
     gap: 6px;
     transition: background 0.2s;
+    width: fit-content;
+    white-space: nowrap;
 }
 
 .words-found-counter:hover {
@@ -712,6 +714,10 @@ body {
     gap: 12px;
 }
 
+.completion-title.completion-title-spaced {
+    margin-top: 40px;
+}
+
 .completion-title .confetti-icon {
     width: 32px;
     height: 32px;
@@ -764,7 +770,8 @@ body {
 }
 
 .btn-share,
-.btn-back {
+.btn-back,
+.btn-reset {
     width: 100%;
     padding: 14px;
 }
@@ -835,11 +842,17 @@ body {
 }
 
 .instructions-list li::before {
-    content: "→";
+    content: "";
     position: absolute;
     left: 0;
-    color: var(--active-color);
-    font-weight: bold;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    background-image: url('img/arrow-right.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 .play-button-container {
