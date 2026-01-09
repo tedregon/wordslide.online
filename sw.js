@@ -1,5 +1,5 @@
 // Service Worker for WordSlide PWA
-const CACHE_NAME = 'wordslide-v3';
+const CACHE_NAME = 'wordslide-v4';
 const urlsToCache = [
   './',
   './index.html',
@@ -8,6 +8,8 @@ const urlsToCache = [
   './styles.css',
   './game.js',
   './dictionary.js',
+  './firebase-config.js',
+  './firebase-service.js',
   './sw-register.js',
   './img/wordslide-logo.png',
   './img/home-page-logo.png',

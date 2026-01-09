@@ -53,8 +53,8 @@ class WordSlideGame {
         // Load dictionary first
         await dictionary.load();
         
-        // Generate initial level
-        this.generateNewLevel();
+        // Generate initial level (will try Firebase first, fallback to random)
+        await this.generateNewLevel();
         
         // Setup event listeners
         this.setupEventListeners();
@@ -66,8 +66,8 @@ class WordSlideGame {
 
     setupEventListeners() {
         document.getElementById('confirm-btn').addEventListener('click', () => this.confirmWord());
-        document.getElementById('reset-btn').addEventListener('click', () => this.resetLevel());
-        document.getElementById('restart-btn').addEventListener('click', () => this.restartGame());
+        document.getElementById('reset-btn').addEventListener('click', () => this.resetLevel().catch(console.error));
+        document.getElementById('restart-btn').addEventListener('click', () => this.restartGame().catch(console.error));
         document.getElementById('back-to-menu-btn').addEventListener('click', () => {
             window.location.href = 'index.html';
         });
@@ -148,31 +148,47 @@ class WordSlideGame {
     }
 
     /**
-     * Generate a new level
+     * Generate a new level - tries Firebase first, falls back to random words
      */
-    generateNewLevel() {
-        // Generate level with exactly 5 words of 5 letters each
-        const wordLength = 5;
-        const wordCount = 5;
+    async generateNewLevel() {
+        let words = null;
         
-        // Get available words of the specified length
-        const availableWords = dictionary.wordsOfLength(wordLength);
-        
-        if (availableWords.length < wordCount) {
-            console.error(`Not enough ${wordLength}-letter words in dictionary. Available: ${availableWords.length}, needed: ${wordCount}`);
-            // Fallback to basic words
-            const fallbackWords = ['CAT', 'DOG', 'BAT', 'HAT', 'MAT'];
-            this.currentLevelWords = fallbackWords;
-        } else {
-            // Select exactly 5 random words
-            const shuffled = this.shuffleArray([...availableWords]);
-            this.currentLevelWords = shuffled.slice(0, wordCount);
+        // Try to fetch words from Firebase
+        try {
+            if (typeof firebaseService !== 'undefined') {
+                words = await firebaseService.getTodaysWords();
+            }
+        } catch (error) {
+            console.error('Firebase fetch error:', error);
         }
         
-        console.log(`Level ${this.currentLevelNumber}: Generated ${wordCount} words of length ${wordLength}: ${this.currentLevelWords.join(', ')}`);
+        // If Firebase didn't return words, generate random words as fallback
+        if (!words || words.length === 0) {
+            console.log('Using fallback: generating random words');
+            const wordLength = 5;
+            const wordCount = 5;
+            
+            // Get available words of the specified length
+            const availableWords = dictionary.wordsOfLength(wordLength);
+            
+            if (availableWords.length < wordCount) {
+                console.error(`Not enough ${wordLength}-letter words in dictionary. Available: ${availableWords.length}, needed: ${wordCount}`);
+                // Fallback to basic words
+                words = ['CAT', 'DOG', 'BAT', 'HAT', 'MAT'];
+            } else {
+                // Select exactly 5 random words
+                const shuffled = this.shuffleArray([...availableWords]);
+                words = shuffled.slice(0, wordCount);
+            }
+        }
         
-        // Set current word length for validation
-        this.currentWordLength = wordLength;
+        // Ensure words are uppercase
+        this.currentLevelWords = words.map(word => word.toUpperCase());
+        
+        // Determine word length from the words (they should all be the same length)
+        this.currentWordLength = this.currentLevelWords[0] ? this.currentLevelWords[0].length : 5;
+        
+        console.log(`Level ${this.currentLevelNumber}: Using ${this.currentLevelWords.length} words of length ${this.currentWordLength}: ${this.currentLevelWords.join(', ')}`);
         
         // Generate letter grid from words
         this.letters = this.generateLettersGrid(this.currentLevelWords);
@@ -293,7 +309,7 @@ class WordSlideGame {
             
             // Check if grid is empty (level complete)
             if (this.isGridEmpty()) {
-                this.progressToNextLevel();
+                this.progressToNextLevel().catch(console.error);
                 return;
             }
             
@@ -413,7 +429,7 @@ class WordSlideGame {
     /**
      * Progress to next level
      */
-    progressToNextLevel() {
+    async progressToNextLevel() {
         // Check if user can progress
         if (this.foundWords.length < this.wordsNeededForProgression) {
             this.showResult(`Find at least ${this.wordsNeededForProgression} words to progress`, 'info');
@@ -428,7 +444,7 @@ class WordSlideGame {
         
         // Progress to next level
         this.currentLevelNumber++;
-        this.generateNewLevel();
+        await this.generateNewLevel();
         this.renderGrid();
         this.updateUI();
         this.showResult(`Level ${this.currentLevelNumber} - Find ${this.wordsNeededForProgression} words!`, 'info');
@@ -494,13 +510,13 @@ class WordSlideGame {
     /**
      * Reset current level using the same words
      */
-    resetLevel() {
+    async resetLevel() {
         // Increment reset counter
         this.resetCount++;
         
         // Check if we have current level words, if not generate a new level
         if (!this.currentLevelWords || this.currentLevelWords.length === 0) {
-            this.generateNewLevel();
+            await this.generateNewLevel();
         } else {
             // Use the same words to regenerate the level
             console.log(`Resetting level ${this.currentLevelNumber} with same words: ${this.currentLevelWords.join(', ')}`);
@@ -533,7 +549,7 @@ class WordSlideGame {
     /**
      * Restart game (full reset)
      */
-    restartGame() {
+    async restartGame() {
         this.lives = 3;
         this.coins = 0;
         this.currentLevelNumber = 1;
@@ -544,7 +560,7 @@ class WordSlideGame {
         this.otherFoundWords = [];
         this.otherFoundWordsSet.clear();
         this.showGameOver = false;
-        this.generateNewLevel();
+        await this.generateNewLevel();
         this.renderGrid();
         this.updateUI();
         document.getElementById('game-over-modal').classList.remove('show');
