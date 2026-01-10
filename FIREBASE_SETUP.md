@@ -13,7 +13,7 @@ The `firestore.rules` file in this repository contains the recommended security 
 ### Option 1: Using Firebase Console (Easiest)
 
 1. Go to [Firebase Console](https://console.firebase.google.com/)
-2. Select your project: `wordslide-game`
+2. Select your project: `wordslide-game` (note: project ID may still be "wordslide-game" even though the app is now called WordJam)
 3. Navigate to **Firestore Database** → **Rules** tab
 4. Copy the contents of `firestore.rules` from this repository
 5. Paste into the rules editor

@@ -1,6 +1,6 @@
 # Security Issues Report
 
-This document outlines security issues found in the WordSlide project and recommendations for addressing them.
+This document outlines security issues found in the WordJam project and recommendations for addressing them.
 
 ## High Priority Issues
 

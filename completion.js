@@ -12,13 +12,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Function to get share text
     function getShareText() {
-        return `I have completed today's WordSlide puzzle in ${tries} ${tries === 1 ? 'try' : 'tries'} https://tedregon.github.io/wordslide.online/`;
+        return `I have completed today's WordJam puzzle in ${tries} ${tries === 1 ? 'try' : 'tries'} https://chipdoes.app/playwordjam/`;
     }
 
     // Share button - share to X/Twitter
     document.getElementById('share-btn').addEventListener('click', () => {
-        const message = `I have completed today's WordSlide puzzle in ${tries} ${tries === 1 ? 'try' : 'tries'}`;
-        const url = 'https://tedregon.github.io/wordslide.online/';
+        const message = `I have completed today's WordJam puzzle in ${tries} ${tries === 1 ? 'try' : 'tries'}`;
+        const url = 'https://chipdoes.app/playwordjam/';
         const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}&url=${encodeURIComponent(url)}`;
         window.open(twitterUrl, '_blank', 'width=550,height=420');
     });
@@ -65,11 +65,11 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.removeItem('completedWords');
         localStorage.removeItem('completedResetCount');
         
-        // Clear all found words storage keys (they start with 'wordslide_foundWords_')
+        // Clear all found words storage keys (they start with 'wordjam_foundWords_')
         const keysToRemove = [];
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
-            if (key && key.startsWith('wordslide_foundWords_')) {
+            if (key && key.startsWith('wordjam_foundWords_')) {
                 keysToRemove.push(key);
             }
         }

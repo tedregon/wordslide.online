@@ -1,5 +1,5 @@
-// Service Worker for WordSlide PWA
-const CACHE_NAME = 'wordslide-v4';
+// Service Worker for WordJam PWA
+const CACHE_NAME = 'wordjam-v4';
 const urlsToCache = [
   './',
   './index.html',
@@ -11,7 +11,7 @@ const urlsToCache = [
   './firebase-config.js',
   './firebase-service.js',
   './sw-register.js',
-  './img/wordslide-logo.png',
+  './img/wordjam-logo.png',
   './img/home-page-logo.png',
   './img/favicon.png',
   './img/confetti-fill.svg',

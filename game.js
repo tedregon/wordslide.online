@@ -1,9 +1,9 @@
 /**
- * WordSlide Game - Main game logic
+ * WordJam Game - Main game logic
  * Implements WordJam mechanics for web
  */
 
-class WordSlideGame {
+class WordJamGame {
     constructor() {
         // Game state
         this.lives = 3;
@@ -993,11 +993,11 @@ setupRowDragHandlers(rowContainer, rowElement, rowIndex) {
      */
     getFoundWordsStorageKey() {
         if (!this.currentLevelWords || this.currentLevelWords.length === 0) {
-            return 'wordslide_foundWords_default';
+            return 'wordjam_foundWords_default';
         }
         // Create a key based on sorted level words (so same level = same key)
         const sortedWords = [...this.currentLevelWords].sort().join(',');
-        return `wordslide_foundWords_${sortedWords}`;
+        return `wordjam_foundWords_${sortedWords}`;
     }
 
     /**
@@ -1148,7 +1148,7 @@ setupRowDragHandlers(rowContainer, rowElement, rowIndex) {
      * Load highscore from localStorage
      */
     loadHighscore() {
-        const saved = localStorage.getItem('wordslide_highscore');
+        const saved = localStorage.getItem('wordjam_highscore');
         return saved ? parseInt(saved, 10) : 0;
     }
 
@@ -1156,7 +1156,7 @@ setupRowDragHandlers(rowContainer, rowElement, rowIndex) {
      * Save highscore to localStorage
      */
     saveHighscore() {
-        localStorage.setItem('wordslide_highscore', this.highscore.toString());
+        localStorage.setItem('wordjam_highscore', this.highscore.toString());
     }
 
     /**
@@ -1175,5 +1175,5 @@ setupRowDragHandlers(rowContainer, rowElement, rowIndex) {
 // Initialize game when page loads
 let game;
 document.addEventListener('DOMContentLoaded', async () => {
-    game = new WordSlideGame();
+    game = new WordJamGame();
 });

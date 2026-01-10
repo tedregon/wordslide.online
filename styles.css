@@ -62,7 +62,7 @@ body {
 }
 
 .logo {
-    max-width: 226px;
+    max-width: 180px;
     height: auto;
     width: 100%;
 }
@@ -773,6 +773,13 @@ body {
     display: flex;
     flex-direction: column;
     gap: 12px;
+}
+
+.completion-actions-divider {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin: 4px 0;
 }
 
 .btn-share,

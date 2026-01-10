@@ -4,15 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.gstatic.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.firebaseapp.com https://*.firebasestorage.app https://twitter.com; font-src 'self' data:; worker-src 'self'; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self';">
-    <meta name="description" content="WordSlide - Word Puzzle Game">
+    <meta name="description" content="WordJam - Word Puzzle Game">
     <meta name="theme-color" content="#F5C139">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="WordSlide">
-    <title>WordSlide - The Word Sliding Crossword</title>
+    <meta name="apple-mobile-web-app-title" content="WordJam">
+    <title>WordJam - The Word Sliding Crossword</title>
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="img/favicon.png">
-    <link rel="apple-touch-icon" href="img/wordslide-logo.png">
+    <link rel="apple-touch-icon" href="img/wordjam-logo.png">
     <link rel="stylesheet" href="styles.css">
     <script src="sw-register.js"></script>
     <script src="completion.js"></script>
@@ -21,7 +21,7 @@
     <div class="container">
         <div class="completion-content">
             <a href="index.html" class="logo-link">
-                <img src="img/home-page-logo.png" alt="WordSlide Logo" class="logo">
+                <img src="img/home-page-logo.png" alt="WordJam Logo" class="logo">
             </a>
             <h1 class="completion-title completion-title-spaced">
                 Congratulations!
@@ -36,6 +36,7 @@
                 <button class="btn-action btn-copy" id="copy-btn">
                     <span class="btn-label">Copy</span>
                 </button>
+                <span class="completion-actions-divider">or</span>
                 <button class="btn-action btn-reset" id="reset-btn">
                     <span class="btn-label">Reset</span>
                 </button>
@@ -49,7 +50,7 @@
     <div class="update-modal" id="update-modal">
         <div class="modal-content">
             <h2>Update Available</h2>
-            <p>A new version of WordSlide is available. Refresh to get the latest features and improvements.</p>
+            <p>A new version of WordJam is available. Refresh to get the latest features and improvements.</p>
             <div class="modal-buttons">
                 <button class="btn-modal" id="update-refresh-btn">Refresh</button>
                 <button class="btn-modal" id="update-later-btn">Later</button>

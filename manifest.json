@@ -1,6 +1,6 @@
 {
-  "name": "WordSlide",
-  "short_name": "WordSlide",
+  "name": "WordJam",
+  "short_name": "WordJam",
   "description": "Word Puzzle Game",
   "start_url": "./",
   "display": "standalone",
@@ -10,7 +10,7 @@
   "scope": "./",
   "icons": [
     {
-      "src": "img/wordslide-logo.png",
+      "src": "img/wordjam-logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

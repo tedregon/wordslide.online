@@ -1,4 +1,4 @@
-# WordSlide - Web Word Puzzle Game
+# WordJam - Web Word Puzzle Game
 
 A web-based word puzzle game similar to WordJam, where players form words by connecting adjacent letters on a 4x4 grid.
 
@@ -14,7 +14,7 @@ A web-based word puzzle game similar to WordJam, where players form words by con
 
 ## How to Play
 
-1. Click on letters to start forming a word
+1. Slide rows to start forming a word
 2. Continue clicking adjacent letters (horizontally, vertically, or diagonally)
 3. Click "Submit Word" or press Enter to validate your word
 4. Valid words (3+ letters) earn points based on length
